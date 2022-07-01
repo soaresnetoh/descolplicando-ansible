@@ -1,2 +1,10 @@
 ---
 # vars file for criando-instancias
+instance_type: t2.medium
+sec_group_name: giropops
+# image: ami-0a20b2fbe7bee1376
+image: ami-08d4ac5b634553e16
+keypair: hsn-arm64
+region: us-east-1
+count: 3
+profile: hernanitotal
