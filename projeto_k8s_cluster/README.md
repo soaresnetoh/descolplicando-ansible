@@ -13,15 +13,15 @@ Projeto com contribuição dos alunos.
 
 ## Docs
 
-Como pegar a ID da imagem na AWS:
+Como pegar a ID da imagem na AWS. Abaixo busca a imagem mais atual do Ubuntu 20.04 LTS com Owner a Canonical:
 
 ```
-aws ec2 describe-images \
+aws ec2 describe-images \      
  --region="us-east-1" \
+ --owner=099720109477 \
  --filters Name=name,Values='*ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64*' \
- --query 'Images[*].[ImageId,CreationDate]' --output text \
- | sort -k2 -r \
- | head -n1
+ --query 'Images[*].[ImageId,CreationDate]' \
+ --output text | sort -k2 -r | head -n1 | cut -f1 -d$'\t'
 ```
 
 # Links importantes:
