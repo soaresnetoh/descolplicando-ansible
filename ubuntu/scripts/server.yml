@@ -1,0 +1,133 @@
+---
+- name: Preparing Server
+  hosts: localhost
+  become: true
+  connection: local
+  vars:
+    http_port: 80
+    web_user: www-data
+    web_group: www-data
+
+  tasks:
+    - name: Installing Linux Apps
+      become: true
+      apt:
+        name: 
+          - vim
+          - htop
+          - curl
+          - python3-pip
+          - git
+          - git-flow
+          - bash-completion
+          - jq
+          - unzip
+        install_recommends: yes
+        state: present
+
+    - name: set timezone to America/Sao_Paulo
+      timezone:
+        name: America/Sao_Paulo
+
+    - block:
+      - name: install apache2
+        become: true
+        apt: name=apache2 update_cache=yes state=latest
+
+      - name: start apache2 on boot
+        service: name=apache2 state=started enabled=yes
+        tags: apache2_boot
+
+      - name: enabled modules => mod_rewrite, mod_headers, mod_ssh, mod_curl
+        become: true
+        apache2_module: name={{ item }} state=present
+        with_items:
+          - rewrite
+          - headers
+          - ssl
+          - actions
+
+        notify:
+          - restart apache2
+      #  ignore_errors: yes
+
+      - name: apache2 listen on port {{ http_port }}
+        lineinfile: dest=/etc/apache2/ports.conf regexp="^Listen " line="Listen {{ http_port }}" state=present
+        notify:
+          - restart apache2
+
+      - name: apache2 virtualhost on port {{ http_port }}
+        lineinfile: dest=/etc/apache2/sites-available/000-default.conf regexp="^<VirtualHost \*:" line="<VirtualHost *:{{ http_port }}>"
+        notify:
+          - restart apache2
+
+      - name: Change User apache2 will run with
+        lineinfile: "dest=/etc/apache2/envvars state=present regexp='^export APACHE_RUN_USER' line='export APACHE_RUN_USER={{ web_user }}'"
+
+      - name: Change Group apache2 will run with
+        lineinfile: "dest=/etc/apache2/envvars state=present regexp='^export APACHE_RUN_GROUP' line='export APACHE_RUN_GROUP={{ web_group }}'"
+
+    - block:
+      #https://www.digitalocean.com/community/questions/how-to-upgrade-from-php-v-5-5-9-to-v-5-6
+      - name: repository php56
+        apt_repository: repo='ppa:ondrej/php' update_cache=yes state=present
+
+      - name: Install libapache2-mod-php5.6 package
+        become: true
+        apt: name=libapache2-mod-php5.6 update_cache=yes state=present
+
+      - name: Install libapache2-mod-fcgid
+        apt: pkg={{item}} state=present update_cache=no
+        with_items:
+        - libapache2-mod-fcgid
+        - php5.6-fpm
+
+      - name: Copy php5.6-fpm.conf
+        template: src=php5.6-fpm.conf.j2 dest=/etc/apache2/conf-available/php5.6-fpm.conf
+
+      - name: Install php5.6 & dependencies
+        become: true
+        apt:
+          name:
+            - php5.6 
+            - php5.6-common 
+            - php5.6-curl 
+            - php5.6-json 
+            - php5.6-xml 
+            - php5.6-pdo 
+            - php5.6-gd 
+            - php5.6-mysqlnd 
+            - php5.6-mbstring 
+            - php5.6-gettext 
+            - php5.6-cli 
+            - php5.6-mcrypt 
+            - php5.6-zip 
+            - php5.6-soap 
+            - php5.6-curl 
+            - php5.6-bz2
+          install_recommends: yes
+          state: present
+        notify:
+          - restart apache2
+
+      - name: Install Habilitando módulo CGI
+        become: true
+        apache2_module:
+          name: '{{ item }}'
+          state: present
+        loop:
+          - actions
+          - fcgid
+          - alias
+          - proxy_fcgi
+        notify:
+          - restart apache2
+
+  
+  handlers:
+
+    - name: restart apache2
+      service: name=apache2 state=restarted
+
+    - name: restart {{ php_fpm_service_name }}
+      service: name={{php_fpm_service_name}} state=restarted
