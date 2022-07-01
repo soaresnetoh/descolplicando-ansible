@@ -69,3 +69,6 @@ para pegar as facts:
 $ ansible -i hosts webservers -m setup
 ```
 
+# Criando infra na AWS
+
+[Acesse o projeto ansible-k8s-aws](./projeto_k8s_cluster/)
