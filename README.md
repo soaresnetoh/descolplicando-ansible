@@ -44,3 +44,28 @@ The key's randomart image is:
 +----[SHA256]-----+
 ```
 
+suba as vms:
+```bash
+$ vagrant up
+```
+
+crie um acesso por dns as vms:
+```bash
+$ sudo vim /etc/hosts
+10.11.22.101  ansible1
+10.11.22.102  ansible2
+10.11.22.103  ansible3
+
+```
+
+acesse a vm:
+```bash
+$ ssh -i .ssh/keys usuario@ansible1
+```
+
+
+para pegar as facts:
+```bash
+$ ansible -i hosts webservers -m setup
+```
+

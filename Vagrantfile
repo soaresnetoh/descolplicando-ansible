@@ -31,6 +31,7 @@ Vagrant.configure("2") do |config|
       # $ mkdir .ssh
       # $ ssh-keygen -f .ssh/keys
       machine.vm.provision "file", source: ".ssh/keys.pub", destination: "/home/vagrant/.ssh/id_rsa.pub.usuario"
+      machine.vm.provision "file", source: ".ssh/keys", destination: "/home/vagrant/.ssh/id_rsa.usuario"
       machine.vm.provision 'shell', path: "ubuntu/#{conf['provision']}"
       machine.vm.provision "shell", inline: <<-SHELL
         sudo hostnamectl set-hostname #{name}
