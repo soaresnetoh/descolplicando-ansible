@@ -1,4 +1,4 @@
-- hosts: k8s-master
+- hosts: all
   become: yes
   user: ubuntu
   gather_facts: no
@@ -14,7 +14,7 @@
   become: yes
   user: ubuntu
   roles:
-  - { role: create-cluster, tags: ["create_clusteer_role"] }
+  - { role: create-cluster, tags: ["create_cluster_role"] }
 
 - hosts: k8s-workers
   become: yes
