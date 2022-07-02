@@ -43,4 +43,4 @@
 
 - name: 
   debug:
-    msg: "[MASTER] K8S_TOKEN_HOLDER -O hash eh {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+    msg: "[MASTER] K8S_TOKEN_HOLDER -O hash eh {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"

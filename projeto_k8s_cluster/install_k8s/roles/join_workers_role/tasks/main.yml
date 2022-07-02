@@ -1,2 +1,3 @@
 ---
 # tasks file for join_workers_role
+- include: join-cluster.yml
