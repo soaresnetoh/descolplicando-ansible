@@ -11,6 +11,15 @@
     kubeadm reset --force
   register: kubeadm_reset
 
+#https://github.com/containerd/containerd/issues/4581
+- name: Removendo config.toml
+  shell: rm -Rf /etc/containerd/config.toml || true
+
+- name: Restartando service containerd
+  ansible.builtin.service:
+    name: containerd
+    state: restarted  
+
 - name: Adicionando o worker ao cluster k8s
   shell: 
     kubeadm join --token={{ hostvars['K8S_TOKEN_HOLDER']['token'] }} 

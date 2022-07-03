@@ -3,6 +3,16 @@
     kubeadm reset --force
   register: kubeadm_reset
 
+#https://github.com/containerd/containerd/issues/4581
+- name: Removendo config.toml
+  shell: rm -Rf /etc/containerd/config.toml || true
+
+
+- name: Restartando service containerd
+  ansible.builtin.service:
+    name: containerd
+    state: restarted  
+
 - name: Inicializando o cluster k8s
   command:  
     kubeadm init
@@ -28,7 +38,9 @@
   register: k8s_token
 
 - name: CA Hash
-  shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin 0outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  # shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin 0outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+
   register: k8s_master_ca_hash
 
 - name: Adicionando o token e o hash em um dummy host
