@@ -109,6 +109,14 @@
   args:
     tags:
       Name: ansible-{{ item.ami_launch_index|int +1 }}
+      PROJETO: APAGAR
+
+# - name: Adicionando a TAG da instancia criada ao arquivo hosts
+#   local_action: lineinfile
+#     dest="./hosts"
+#     regexp={{ item.tags{1} }}
+#     insertafter="[kubernetes]" line={{ item.tags{1} }}
+#   with_items: "{{ ec2.instances }}"
 
 # - name: Adicionando uma tag na instancia
 #   local_action: 
